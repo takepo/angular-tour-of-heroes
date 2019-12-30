@@ -11,11 +11,15 @@ import { MessageService } from './message.service';
   providedIn: 'root'
 })
 export class HeroService {
-  private heroesUrl = 'api/heroes';  // Web APIのURL
 
   constructor(
     private http: HttpClient,
     private messageService: MessageService) { }
+  private heroesUrl = 'api/heroes';  // Web APIのURL
+
+  httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  };
 
   /** HeroServiceのメッセージをMessageServiceを使って記録 */
   private log(message: string) {
@@ -57,6 +61,14 @@ export class HeroService {
     return this.http.get<Hero>(url).pipe(
       tap(_ => this.log(`fetched hero id=${id}`)),
       catchError(this.handleError<Hero>(`getHero id=${id}`))
+    );
+  }
+
+  /** PUT: サーバー上でヒーローを更新 */
+  updateHero(hero: Hero): Observable<any> {
+    return this.http.put(this.heroesUrl, hero, this.httpOptions).pipe(
+      tap(_ => this.log(`updated hero id=${hero.id}`)),
+      catchError(this.handleError<any>('updateHero'))
     );
   }
 }
